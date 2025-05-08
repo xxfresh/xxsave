@@ -175,6 +175,7 @@ async def upload_media(sender, target_chat_id, file, caption, edit, topic_id):
                 thumb=thumb_path
             )
 
+    os.remove(file)
     except Exception as e:
         await app.send_message(LOG_GROUP, f"**Upload Failed:** {str(e)}")
         print(f"Error during media upload: {e}")
