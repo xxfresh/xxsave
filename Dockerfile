@@ -1,33 +1,28 @@
-FROM python:3.10-slim-bookworm
+# Use an official Python runtime as a parent image
+FROM python:3.11-slim
 
-# Install system dependencies and clean up cache
-RUN apt-get update && \
-    apt-get upgrade -y && \
-    apt-get install -y --no-install-recommends \
-        git \
-        curl \
-        wget \
-        ffmpeg \
-        bash \
-        software-properties-common && \
-    apt-get clean && \
-    rm -rf /var/lib/apt/lists/*
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1
 
-# Set working directory
+# Set work directory
 WORKDIR /app
 
-# Copy requirements first for better caching
+# Install system dependencies
+RUN apt-get update && apt-get install -y \
+    gcc \
+    libgl1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
 COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Upgrade pip and install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip wheel && \
-    pip install --no-cache-dir --upgrade -r requirements.txt
-
-# Copy the rest of the application code
+# Copy project files
 COPY . .
 
-# Expose the default port (adjust if your app uses a different one)
+# Expose the port Flask is running on
 EXPOSE 8000
 
-# Start the application
-CMD ["flask", "run", "-h", "0.0.0.0", "-p", "8000"]
+# Run the Flask app
+CMD ["python", "app.py"]
