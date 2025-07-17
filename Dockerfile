@@ -1,14 +1,23 @@
 FROM python:3.10.4-slim-buster
-RUN apt update && apt upgrade -y
-RUN apt-get install git curl python3-pip ffmpeg -y
-RUN apt-get -y install git
-RUN apt-get install -y wget python3-pip curl bash neofetch ffmpeg software-properties-common
-COPY requirements.txt .
 
-RUN pip3 install wheel
-RUN pip3 install --no-cache-dir -U -r requirements.txt
+# Install system dependencies and clean up
+RUN apt update && apt upgrade -y && \
+    apt-get install -y git curl wget python3-pip bash ffmpeg software-properties-common && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
+
+# Install Python dependencies
+COPY requirements.txt .
+RUN pip3 install --no-cache-dir -U pip wheel && \
+    pip3 install --no-cache-dir -U -r requirements.txt
+
+# Set work directory
 WORKDIR /app
+
+# Copy application code
 COPY . .
+
+# Expose port
 EXPOSE 8000
 
-CMD flask run -h 0.0.0.0 -p 8000 & python3 -m devgagan
+# Start the application
+CMD flask run -h 0.0.0.0 -p 8000 && python3 -m devgagan
