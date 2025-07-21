@@ -1,28 +1,8 @@
-# Use an official Python runtime as a parent image
-FROM python:3.11-slim
-
-# Set environment variables
-ENV PYTHONDONTWRITEBYTECODE 1
-ENV PYTHONUNBUFFERED 1
-
-# Set work directory
+FROM python:3.9.2-slim-buster
+RUN mkdir /app && chmod 777 /app
 WORKDIR /app
-
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    gcc \
-    libgl1 \
-    && rm -rf /var/lib/apt/lists/*
-
-# Install Python dependencies
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
-
-# Copy project files
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt -qq update && apt -qq install -y git python3 python3-pip ffmpeg
 COPY . .
-
-# Expose the port Flask is running on
-EXPOSE 8000
-
-# Run the Flask app
-CMD ["python", "app.py"]
+RUN pip3 install --no-cache-dir -r requirements.txt
+CMD ["python3", "-m", "devgagan"]
